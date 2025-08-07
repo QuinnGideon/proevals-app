@@ -1,6 +1,4 @@
 
-
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { Drill, PM_LEVELS, SKILL_CATEGORIES, PmLevel, SkillCategory } from '../types';
@@ -457,7 +455,7 @@ const AdminPage: React.FC = () => {
                             <textarea
                                 value={jsonInput}
                                 onChange={(e) => setJsonInput(e.target.value)}
-                                placeholder='{ "drills": [ ... ] } or [ ... ] or { ... } or even {...}, {...}'
+                                placeholder='Paste drill JSON here.'
                                 className="mt-4 w-full h-48 p-2 bg-[var(--color-bg-primary)] border border-[var(--color-border-primary)] rounded-md font-mono text-sm"
                             />
                             <div className="mt-4 flex space-x-4">

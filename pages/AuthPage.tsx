@@ -1,7 +1,4 @@
 
-
-
-
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
@@ -59,7 +56,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ mode }) => {
             Or{' '}
             {isLogin ? (
               <Link to="/signup" className="font-medium text-[var(--color-brand-primary)] hover:text-[var(--color-brand-accent)]">
-                start your 14-day free trial
+                create a free account
               </Link>
             ) : (
               <Link to="/login" className="font-medium text-[var(--color-brand-primary)] hover:text-[var(--color-brand-accent)]">
