@@ -1,4 +1,6 @@
 
+
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { Drill, PM_LEVELS, SKILL_CATEGORIES, PmLevel, SkillCategory } from '../types';
@@ -257,6 +259,7 @@ const AdminPage: React.FC = () => {
     const [drills, setDrills] = useState<Drill[]>([]);
     const [editingDrill, setEditingDrill] = useState<Drill | null>(null);
     const [sortConfig, setSortConfig] = useState<{ key: keyof Drill; direction: 'ascending' | 'descending' }>({ key: 'drill_id', direction: 'descending' });
+    const [isJsonStructureOpen, setIsJsonStructureOpen] = useState(false);
 
     const refreshDrills = () => {
         const allDrills = dataService.getDrillBank();
@@ -455,7 +458,7 @@ const AdminPage: React.FC = () => {
                             <textarea
                                 value={jsonInput}
                                 onChange={(e) => setJsonInput(e.target.value)}
-                                placeholder='Paste drill JSON here.'
+                                placeholder='{ "drills": [ ... ] } or [ ... ] or { ... } or even {...}, {...}'
                                 className="mt-4 w-full h-48 p-2 bg-[var(--color-bg-primary)] border border-[var(--color-border-primary)] rounded-md font-mono text-sm"
                             />
                             <div className="mt-4 flex space-x-4">
@@ -474,30 +477,37 @@ const AdminPage: React.FC = () => {
                         </div>
                         
                         <div className="border-t border-[var(--color-border-primary)] pt-8">
-                             <details className="group">
-                                <summary className="cursor-pointer text-xl font-semibold text-[var(--color-text-primary)] flex items-center list-none">
-                                    <Code className="mr-2"/> Definitive Drill JSON Structure
-                                    <span className="ml-2 text-[var(--color-text-secondary)] group-open:rotate-90 transition-transform">&#9656;</span>
-                                </summary>
-                                <div className="mt-4 p-4 bg-[var(--color-bg-primary)] rounded-md border border-[var(--color-border-primary)] space-y-4">
-                                    <div>
-                                        <h4 className="font-bold text-[var(--color-text-primary)]">Important Notes on Seeding:</h4>
-                                        <ul className="list-disc list-inside text-sm text-[var(--color-text-secondary)] mt-2 space-y-1">
-                                            <li><span className="font-semibold text-[var(--color-text-primary)]">Automatic ID Generation:</span> If you provide a `drill_id` that is missing or already exists, the system will automatically generate a new, unique ID for that drill.</li>
-                                            <li><span className="font-semibold text-[var(--color-text-primary)]">Strict Validation:</span> All required fields are checked. If any field is missing, empty, or has an invalid value (e.g., incorrect skill category), the operation will be rejected with a specific error message.</li>
-                                            <li><span className="font-semibold text-[var(--color-text-primary)]">Peer Data:</span> All four `peer_data` fields must be numbers, and their sum must equal 100.</li>
-                                            <li><span className="font-semibold text-[var(--color-text-primary)]">Strategic Alternative:</span> The `strategic_alternative` and `strategic_alternative_rationale` fields are <span className="font-bold">optional</span>. If you provide one, you must provide both.</li>
-                                        </ul>
+                            <div>
+                                <button
+                                    onClick={() => setIsJsonStructureOpen(!isJsonStructureOpen)}
+                                    className="cursor-pointer text-xl font-semibold text-[var(--color-text-primary)] flex items-center w-full text-left"
+                                    aria-expanded={isJsonStructureOpen}
+                                >
+                                    <Code className="mr-2"/>
+                                    Definitive Drill JSON Structure
+                                    <span className={`ml-2 text-[var(--color-text-secondary)] transition-transform transform ${isJsonStructureOpen ? 'rotate-90' : ''}`}>&#9656;</span>
+                                </button>
+                                {isJsonStructureOpen && (
+                                    <div className="mt-4 p-4 bg-[var(--color-bg-primary)] rounded-md border border-[var(--color-border-primary)] space-y-4 animate-fade-in-up">
+                                        <div>
+                                            <h4 className="font-bold text-[var(--color-text-primary)]">Important Notes on Seeding:</h4>
+                                            <ul className="list-disc list-inside text-sm text-[var(--color-text-secondary)] mt-2 space-y-1">
+                                                <li><span className="font-semibold text-[var(--color-text-primary)]">Automatic ID Generation:</span> If you provide a `drill_id` that is missing or already exists, the system will automatically generate a new, unique ID for that drill.</li>
+                                                <li><span className="font-semibold text-[var(--color-text-primary)]">Strict Validation:</span> All required fields are checked. If any field is missing, empty, or has an invalid value (e.g., incorrect skill category), the operation will be rejected with a specific error message.</li>
+                                                <li><span className="font-semibold text-[var(--color-text-primary)]">Peer Data:</span> All four `peer_data` fields must be numbers, and their sum must equal 100.</li>
+                                                <li><span className="font-semibold text-[var(--color-text-primary)]">Strategic Alternative:</span> The `strategic_alternative` and `strategic_alternative_rationale` fields are <span className="font-bold">optional</span>. If you provide one, you must provide both.</li>
+                                            </ul>
+                                        </div>
+                                        <div>
+                                            <h4 className="font-bold text-[var(--color-text-primary)]">JSON Template:</h4>
+                                            <p className="text-sm text-[var(--color-text-secondary)] mb-2">Use this structure for each object inside the `"drills"` array.</p>
+                                            <pre className="text-xs text-left whitespace-pre-wrap overflow-x-auto bg-black/50 text-white p-4 rounded-md">
+                                                <code>{JSON.stringify(SEED_DRILLS.find(d => d.strategic_alternative) || SEED_DRILLS[0], null, 2)}</code>
+                                            </pre>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <h4 className="font-bold text-[var(--color-text-primary)]">JSON Template:</h4>
-                                        <p className="text-sm text-[var(--color-text-secondary)] mb-2">Use this structure for each object inside the `"drills"` array.</p>
-                                        <pre className="text-xs text-left whitespace-pre-wrap overflow-x-auto bg-black/50 text-white p-4 rounded-md">
-                                            <code>{JSON.stringify(SEED_DRILLS.find(d => d.strategic_alternative) || SEED_DRILLS[0], null, 2)}</code>
-                                        </pre>
-                                    </div>
-                                </div>
-                            </details>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>
